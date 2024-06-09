@@ -1,13 +1,5 @@
 #!/usr/bin/env/ python3
 
-# important topics :
-# /camera/aligned_depth_to_color/camera_info # depth image intrinsics
-# /camera/aligned_depth_to_color/image_raw, depth in centimeters?
-# /camera/color/camera_info # color image intrinsics
-# /camera/color/image_raw # color image
-# /darknet_ros/bounding_boxes # bounding boxes and corresponding classes
-
-
 import rospy
 from sensor_msgs.msg import CameraInfo, Image
 from geometry_msgs.msg import PointStamped
@@ -16,6 +8,7 @@ import image_geometry
 import numpy as np
 from darknet_ros_msgs.msg import BoundingBoxes
 from object_detection_localization.msg import ObjectPosition, ObjectPositions
+from object_detection_localization.srv import GetObjectLocations, GetObjectLocationsResponse
 
 ####### probability threshold ########
 THRESHOLD = 0.5
@@ -53,6 +46,9 @@ class Deprojection:
                                                 Image,
                                                 self.color_image_callback
                                                 )
+        
+        # Service
+        server = rospy.Service("get_object_locations", GetObjectLocations, self.get_object_locations)
         pass
 
 
@@ -76,7 +72,7 @@ class Deprojection:
         
 
     # this is the server function
-    def get_object_locations(self):
+    def get_object_locations(self,request):
         result = ObjectPositions()
         for box in self.bounding_boxes:
             object_position = ObjectPosition()
@@ -89,7 +85,9 @@ class Deprojection:
             object_position.Class = class_
             object_position.position = position
             result.object_position.append(object_position)
-        return result
+        
+        # return result
+        return GetObjectLocationsResponse(result)
 
     
     def bounding_boxes_callback(self, msg: BoundingBoxes):
