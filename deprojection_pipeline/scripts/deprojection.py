@@ -7,8 +7,8 @@ import cv_bridge
 import image_geometry
 import numpy as np
 from darknet_ros_msgs.msg import BoundingBoxes
-from object_detection_localization.msg import ObjectPosition, ObjectPositions
-from object_detection_localization.srv import GetObjectLocations, GetObjectLocationsResponse
+from deprojection_pipeline.msg import ObjectPosition, ObjectPositions
+from deprojection_pipeline.srv import GetObjectLocations, GetObjectLocationsResponse
 
 ####### probability threshold ########
 THRESHOLD = 0.5

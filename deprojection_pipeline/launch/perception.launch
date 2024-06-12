@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find realsense2_camera)/launch/rs_aligned_depth.launch"/>
+    <node pkg="deprojection_pipeline" type="darknet_realsense_pipe.py" name="darknet_realsense_pipe" />
+    <include file="$(find darknet_ros)/launch/darknet_ros.launch"/>
+    <node pkg="deprojection_pipeline" type="deprojection.py" name="get_locations_server"/>
+</launch>

@@ -1,1 +1,0 @@
-object_detection_localization/ObjectPosition[] object_position
