@@ -4,4 +4,5 @@
     <node pkg="deprojection_pipeline" type="darknet_realsense_pipe.py" name="darknet_realsense_pipe" />
     <include file="$(find darknet_ros)/launch/darknet_ros.launch"/>
     <node pkg="deprojection_pipeline" type="deprojection.py" name="get_locations_server"/>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find deprojection_pipeline)/rviz/orange_position_test.rviz"/>
 </launch>

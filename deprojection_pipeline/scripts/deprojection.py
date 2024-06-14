@@ -49,13 +49,35 @@ class Deprojection:
         
         # Service
         server = rospy.Service("get_object_locations", GetObjectLocations, self.get_object_locations)
+        
+        # create a publisher to publish the stream
+        self.stream_pub = rospy.Publisher("/orange_position", PointStamped, queue_size=10)
+
+        # create a timer to publish stream
+        self.timer = rospy.Timer(rospy.Duration(0.5), self.publish_stream)
         pass
 
 
+    def publish_stream(self, event):
+        if self.bounding_boxes is None:
+            return
+        position = PointStamped()
+        for box in self.bounding_boxes:
+            id_ = box.id
+            class_ = box.Class
+            x = int((box.xmin + box.xmax) /2)
+            y = int((box.ymin + box.ymax) /2)
+            position = self.get_3d_position(x, y)
+            if position is None:
+                return
+        self.stream_pub.publish(position)
+        print("Published")
+
+
     def get_3d_position(self, x, y):
-        if self.depth_image is None:
+        if self.depth_image is None and self.camera_info is None:
             return  # Wait until depth image is received
-        depth = (self.depth_image[x, y])/1000  # Convert to meters
+        depth = (self.depth_image[y, x])/1000  # Convert to meters
         if np.isnan(depth) or depth == 0:
             rospy.logwarn("Invalid depth at pixel ({}, {})".format(x, y))
             return
@@ -81,6 +103,8 @@ class Deprojection:
             x = int((box.xmin + box.xmax) /2)
             y = int((box.ymin + box.ymax) /2)
             position = self.get_3d_position(x, y)
+            if position is None:
+                return
             object_position.id = id_
             object_position.Class = class_
             object_position.position = position
@@ -88,7 +112,6 @@ class Deprojection:
         
         # return result
         return GetObjectLocationsResponse(result)
-
     
     def bounding_boxes_callback(self, msg: BoundingBoxes):
         self.bounding_boxes = list()
