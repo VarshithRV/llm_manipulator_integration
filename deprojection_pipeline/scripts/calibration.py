@@ -3,12 +3,12 @@ import rospy
 import cv2
 import cv_bridge
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PointStamped, TransformStamped
+from geometry_msgs.msg import PointStamped, Transform
 import numpy as np
-import os, sys
+import os
 import image_geometry
 import tf.transformations as tr
-import tf, tf2_ros
+import pickle
 
 class Calibration:
     def __init__(self)->None:
@@ -21,6 +21,10 @@ class Calibration:
         self.red_fiducial = None
         self.blue_fiducial = None
         self.yellow_fiducial = None
+        self.config_path = os.path.join("/home", 
+                                        os.environ["USER"], 
+                                        "catkin_ws/src/llm_manipulator_integration/deprojection_pipeline/config",
+                                        "camera_color_optical_frame_transformation.bin")
 
         self.rgb_image_subscriber = rospy.Subscriber(
             "/camera/color/image_raw",
@@ -53,6 +57,11 @@ class Calibration:
         self.timer_red = rospy.Timer(rospy.Duration(0.5), self.publish_red_fiducial)
         self.timer_blue = rospy.Timer(rospy.Duration(0.5), self.publish_blue_fiducial)
         self.timer_yellow = rospy.Timer(rospy.Duration(0.5), self.publish_yellow_fiducial)
+
+    def dump_config(self,q,t):
+        transform = {"translation":t,"rotation":q}
+        with open(self.config_path,"wb") as file:
+            pickle.dump(transform,file)
 
     def rgb_image_callback(self,msg:Image):
         self.rgb_image = self.bridge.imgmsg_to_cv2(msg,desired_encoding='bgr8')
@@ -184,6 +193,7 @@ class Calibration:
         self.yellow_fiducial = yellow_position
         return yellow_position
 
+    # given robot_points and image_points, computes the transformation of the image frame to the robot frame
     def calibrate(self,robot_points,image_points):
         # Step 1: Compute the centroids
         centroid_A = np.mean(robot_points, axis=0)
@@ -216,39 +226,6 @@ class Calibration:
         q = tr.quaternion_from_matrix(R)
         return q,t
 
-
-def find_transformation_matrix(A,B):
-    # Step 1: Compute the centroids
-    centroid_A = np.mean(A, axis=0)
-    centroid_B = np.mean(B, axis=0)
-
-    # Step 2: Subtract centroids
-    A_centered = A - centroid_A
-    B_centered = B - centroid_B
-
-    # Step 3: Compute the covariance matrix
-    H = np.dot(A_centered.T, B_centered)
-
-    # Step 4: Perform SVD
-    U, S, Vt = np.linalg.svd(H)
-    V = Vt.T
-
-    # Step 5: Compute the rotation matrix
-    R = np.dot(V, U.T)
-
-    # Ensure a proper rotation matrix (no reflection)
-    if np.linalg.det(R) < 0:
-        V[:, -1] *= -1
-        R = np.dot(V, U.T)
-
-    # Step 6: Compute the translation vector
-    t = centroid_B - np.dot(R, centroid_A)
-
-    R = np.vstack((R, [0, 0, 0]))
-    R = np.hstack((R, [[0], [0], [0], [1]]))
-    q = tr.quaternion_from_matrix(R)
-    return q,t
-
 if __name__ == "__main__":
     rospy.init_node("camera_calibration")
     calibration = Calibration()
@@ -257,49 +234,34 @@ if __name__ == "__main__":
     robot_points = []
     camera_points = []
 
-    # for i in range(4):
-    #     print("Move the robot to the fiducial ", i+1)
-    #     input("Press enter to capture the image")
-    #     camera_points.append(calibration.find_red_fiducial().point)
+    for i in range(4):
+        print("Move the robot to the fiducial ", i+1)
+        input("Press enter to capture the image")
+        camera_points.append(calibration.find_red_fiducial().point)
         
-    #     input("Presss enter to input robot coordinates : ")
-    #     x = float(input("Enter the x coordinate of the robot: "))
-    #     y = float(input("Enter the y coordinate of the robot: "))
-    #     z = float(input("Enter the z coordinate of the robot: "))
-    #     robot_points.append([x, y, z])
+        input("Presss enter to input robot coordinates : ")
+        x = float(input("Enter the x coordinate of the robot: "))
+        y = float(input("Enter the y coordinate of the robot: "))
+        z = float(input("Enter the z coordinate of the robot: "))
+        robot_points.append([x, y, z])
 
-    camera_points = np.array([[-0.053038530884010324,-0.16344921950899796,1.0246913032145657],
-                          [-0.15135917511246952,0.12394492240265864,0.8723325376941249],
-                          [0.18097735075533558,0.06147174141413742,0.9050378022608193],
-                          [0.013290463526259908,-0.0012266763565194055,0.9459058403691]
-                          ])
-    object_points = np.array([[-0.13562,-0.46403,-0.39650],
-                          [-0.14516,-0.79955,-0.39650],
-                          [0.16722,-0.64270,-0.39862],
-                          [-0.01980,-0.61055,-0.39715]
-                          ])
+    # # if already have the points, just uncomment the following lines and comment the for loop
+    # camera_points = np.array([
+    #                       [-0.053038530884010324,-0.16344921950899796,1.0246913032145657],
+    #                       [-0.15135917511246952,0.12394492240265864,0.8723325376941249],
+    #                       [0.18097735075533558,0.06147174141413742,0.9050378022608193],
+    #                       [0.013290463526259908,-0.0012266763565194055,0.9459058403691]
+    #                       ])
+    # robot_points = np.array([
+    #                       [-0.13562,-0.46403,-0.39650],
+    #                       [-0.14516,-0.79955,-0.39650],
+    #                       [0.16722,-0.64270,-0.39862],
+    #                       [-0.01980,-0.61055,-0.39715]
+    #                       ])
                           
-    
-    q,t = calibration.calibrate(robot_points=object_points, image_points=camera_points)
+    q,t = calibration.calibrate(robot_points=robot_points, image_points=camera_points)
     print("Translation from robot frame to image frame = ", t)
     print("Quaternion from robot frame to image frame = ", q)
 
-    broadcaster = tf2_ros.StaticTransformBroadcaster()
-    T = TransformStamped()
-    T.header.stamp = rospy.Time.now()
-    T.header.frame_id = "camera_color_optical_frame"
-    T.child_frame_id = "base_link"
-    T.transform.translation.x = t[0]
-    T.transform.translation.y = t[1]
-    T.transform.translation.z = t[2]
-    T.transform.rotation.x = q[0]
-    T.transform.rotation.y = q[1]
-    T.transform.rotation.z = q[2]
-    T.transform.rotation.w = q[3]
-    print("Sending Transform T here : ",T)
-    broadcaster.sendTransform(T)
-
-    rospy.spin()
-    
-
-    
+    # save the calibration in the config file
+    calibration.dump_config(q,t)

@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /TF1
+        - /TF1/Tree1/camera_link1
       Splitter Ratio: 0.5
     Tree Height: 323
   - Class: rviz/Selection
@@ -131,6 +133,8 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        base_link:
+          Value: true
         camera_accel_frame:
           Value: false
         camera_accel_optical_frame:
@@ -159,6 +163,8 @@ Visualization Manager:
           Value: false
         camera_link:
           Value: false
+        map:
+          Value: true
       Marker Alpha: 1
       Marker Scale: 1
       Name: TF
@@ -172,7 +178,9 @@ Visualization Manager:
               {}
           camera_aligned_depth_to_color_frame:
             camera_color_optical_frame:
-              {}
+              base_link:
+                map:
+                  {}
           camera_color_frame:
             {}
           camera_depth_frame:
@@ -193,7 +201,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: camera_color_optical_frame
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -217,7 +225,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.800357818603516
+      Distance: 0.9934274554252625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -225,17 +233,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.126181960105896
-        Y: -0.5456920862197876
-        Z: 1.3757517337799072
+        X: -0.20764945447444916
+        Y: -0.04076963663101196
+        Z: -0.02894315868616104
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.035201746970415115
+      Pitch: 0.6047968864440918
       Target Frame: <Fixed Frame>
-      Yaw: 5.984879016876221
+      Yaw: 5.79988431930542
     Saved: ~
 Window Geometry:
   Displays:

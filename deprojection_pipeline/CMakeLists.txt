@@ -171,24 +171,15 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/darknet_realsense_pipe.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-catkin_install_python(PROGRAMS
-  scripts/deprojection.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-catkin_install_python(PROGRAMS
+  scripts/darknet_realsense_pipe.py 
+  scripts/deprojection.py 
   scripts/calibration.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}  
+  scripts/save_image.py
+  scripts/camera_color_optical_frame_static_publisher.py
+  scripts/base_link_map_static_publisher.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-catkin_install_python(PROGRAMS
-  scripts/save_image.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}  
-)
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 # install(TARGETS ${PROJECT_NAME}_node
