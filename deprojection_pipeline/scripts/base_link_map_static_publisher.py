@@ -7,7 +7,7 @@ class MapFrameStaticPublisher:
         self.map_base_link_broadcaster = tf2_ros.StaticTransformBroadcaster()
         
         self.map_base_link = TransformStamped()
-        self.map_base_link.header.stamp = rospy.Time.now()
+        self.map_base_link.header.stamp = rospy.Time(0)
         self.map_base_link.header.frame_id = "base_link"
         self.map_base_link.child_frame_id = "map"
         self.map_base_link.transform.translation.x = 0.19645

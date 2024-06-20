@@ -177,6 +177,7 @@ catkin_install_python(PROGRAMS
   scripts/save_image.py
   scripts/camera_color_optical_frame_static_publisher.py
   scripts/base_link_map_static_publisher.py
+  scripts/calibration_validation.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

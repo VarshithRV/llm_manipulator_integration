@@ -15,7 +15,7 @@ class CameraColorOpticalFrameStaticPublisher:
         self.map_base_link_broadcaster = tf2_ros.StaticTransformBroadcaster()
 
         self.camera_color_optical_frame_base_link = TransformStamped()
-        self.camera_color_optical_frame_base_link.header.stamp = rospy.Time.now()
+        self.camera_color_optical_frame_base_link.header.stamp = rospy.Time(0)
         self.camera_color_optical_frame_base_link.header.frame_id = "camera_color_optical_frame"
         self.camera_color_optical_frame_base_link.child_frame_id = "base_link"
         self.camera_color_optical_frame_base_link.transform.translation.x = self.config["translation"][0]
