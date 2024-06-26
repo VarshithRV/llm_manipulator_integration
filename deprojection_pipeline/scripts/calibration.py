@@ -234,10 +234,14 @@ if __name__ == "__main__":
     robot_points = []
     camera_points = []
 
+    rospy.loginfo("Testing red fiducial detection and 3D position estimation.")
+    calibration.find_red_fiducial()
+
     for i in range(4):
         print("Move the robot to the fiducial ", i+1)
         input("Press enter to capture the image")
-        camera_points.append(calibration.find_red_fiducial().point)
+        point_stamped = calibration.find_red_fiducial()
+        camera_points.append([point_stamped.point.x, point_stamped.point.y, point_stamped.point.z])
         
         input("Presss enter to input robot coordinates : ")
         x = float(input("Enter the x coordinate of the robot: "))
@@ -259,6 +263,9 @@ if __name__ == "__main__":
     #                       [-0.01980,-0.61055,-0.39715]
     #                       ])
                           
+    print("Robot points = ", robot_points)
+    print("Camera points = ", camera_points)
+
     q,t = calibration.calibrate(robot_points=robot_points, image_points=camera_points)
     print("Translation from robot frame to image frame = ", t)
     print("Quaternion from robot frame to image frame = ", q)
