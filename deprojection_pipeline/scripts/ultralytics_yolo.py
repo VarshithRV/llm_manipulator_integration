@@ -88,6 +88,10 @@ class Ultralytics:
     def detect(self,request):
         det_result = self.detection_model(self.color_image)
         
+        # # annotate the result and save the image
+        # det_annotated = det_result[0].plot(show=False)
+        # cv2.imwrite("annotated.jpg", det_annotated)
+
         # extract id, class, position from detection result
         class_names = det_result[0].names
         json_result = det_result[0].tojson()
