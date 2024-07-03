@@ -10,8 +10,8 @@ import image_geometry
 import cv2
 import numpy as np
 import json
-from deprojection_pipeline.msg import ObjectPosition, ObjectPositions
-from deprojection_pipeline.srv import GetObjectLocations, GetObjectLocationsResponse
+from deprojection_pipeline_msgs.msg import ObjectPosition, ObjectPositions
+from deprojection_pipeline_msgs.srv import GetObjectLocations, GetObjectLocationsResponse
 import tf2_ros
 from tf2_geometry_msgs import PointStamped
 import geometry_msgs
