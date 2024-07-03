@@ -12,6 +12,9 @@ import numpy as np
 import json
 from deprojection_pipeline.msg import ObjectPosition, ObjectPositions
 from deprojection_pipeline.srv import GetObjectLocations, GetObjectLocationsResponse
+import tf2_ros
+from tf2_geometry_msgs import PointStamped
+import geometry_msgs
 
 class Ultralytics:
     def __init__(self) -> None:
@@ -22,6 +25,10 @@ class Ultralytics:
         self.color_image = None # contains the color cv image
         self.camera_model = image_geometry.PinholeCameraModel()
         self.cv_bridge = cv_bridge.CvBridge()
+
+        # transform listener
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
         # Subscribers
         self.depth_image_sub = rospy.Subscriber(
@@ -52,6 +59,8 @@ class Ultralytics:
         self.orange_position = None
         self.timer_pub = rospy.Timer(rospy.Duration(0.5), self.publish_stream)
         #####################################################
+
+        
         
     def color_image_callback(self, msg: Image):
         self.color_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
@@ -66,12 +75,25 @@ class Ultralytics:
         self.camera_model.fromCameraInfo(msg)
         pass
 
+    def transform_position(self, source_position):
+        try:
+            tf_position = self.tf_buffer.transform(source_position, "base_link")
+            # rospy.loginfo(f"Object position in base_link frame : {self.red_fiducial_base_link_position}")
+            return tf_position
+        except Exception as e:
+            rospy.logerr(e)
+            return None
+
     def get_3d_position(self, x, y):
         if self.depth_image is None and self.camera_info is None:
             return  # Wait until depth image is received
         depth = (self.depth_image[y, x])/1000  # Convert to meters
         if np.isnan(depth) or depth == 0:
             rospy.logwarn("Invalid depth at pixel ({}, {})".format(x, y))
+            # get the mask of all pixels where the depth is not zero
+            mask = self.depth_image != 0
+            # save the image
+            cv2.imwrite("depth_image.jpg", self.depth_image)
             return
         # Project the 2D pixel to 3D point in the camera frame
         point_3d = self.camera_model.projectPixelTo3dRay((x, y))
@@ -82,6 +104,8 @@ class Ultralytics:
         position.point.x = point_3d[0]
         position.point.y = point_3d[1]
         position.point.z = point_3d[2]
+        # transform the position to base_link frame
+        position = self.transform_position(position)
         return position
 
     # service
@@ -89,8 +113,8 @@ class Ultralytics:
         det_result = self.detection_model(self.color_image)
         
         # # annotate the result and save the image
-        # det_annotated = det_result[0].plot(show=False)
-        # cv2.imwrite("annotated.jpg", det_annotated)
+        det_annotated = det_result[0].plot(show=False)
+        cv2.imwrite("annotated.jpg", det_annotated)
 
         # extract id, class, position from detection result
         class_names = det_result[0].names
