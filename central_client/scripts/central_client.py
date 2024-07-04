@@ -23,10 +23,10 @@ if __name__ == "__main__":
     response = central_client.get_object_locations()
     
     # response.result.object_position contains an array of deprojection_pipeline_msgs/ObjectPosition type objects
-    orange_possition = None
+    orange_position = None
     for object_position in response.result.object_position:
         if object_position.Class == "orange":
             print(f"orange detected at ({object_position.position})")
-            orange_possition = object_position.position
+            orange_position = object_position.position
 
-    
+    # orange_position contains the psoition of the orange object as a PointStamped object

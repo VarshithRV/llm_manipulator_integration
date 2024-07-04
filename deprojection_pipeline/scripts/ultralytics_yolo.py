@@ -14,7 +14,6 @@ from deprojection_pipeline_msgs.msg import ObjectPosition, ObjectPositions
 from deprojection_pipeline_msgs.srv import GetObjectLocations, GetObjectLocationsResponse
 import tf2_ros
 from tf2_geometry_msgs import PointStamped
-import geometry_msgs
 
 class Ultralytics:
     def __init__(self) -> None:
@@ -85,7 +84,6 @@ class Ultralytics:
             return None
 
     def get_3d_position(self, x, y):
-        
         if self.depth_image is None and self.camera_info is None:
             return  # Wait until depth image is received
         depth = (self.depth_image[y, x])/1000  # Convert to meters
