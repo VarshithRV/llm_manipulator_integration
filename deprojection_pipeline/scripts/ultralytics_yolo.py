@@ -85,16 +85,19 @@ class Ultralytics:
             return None
 
     def get_3d_position(self, x, y):
+        
         if self.depth_image is None and self.camera_info is None:
             return  # Wait until depth image is received
         depth = (self.depth_image[y, x])/1000  # Convert to meters
         if np.isnan(depth) or depth == 0:
             rospy.logwarn("Invalid depth at pixel ({}, {})".format(x, y))
-            # get the mask of all pixels where the depth is not zero
             mask = self.depth_image != 0
-            # save the image
-            cv2.imwrite("depth_image.jpg", self.depth_image)
+
+            ########## this is for debugging ###########
+            cv2.imwrite("invalid depth.jpg", mask.astype(np.uint8)*255)
+            ############################################
             return
+        
         # Project the 2D pixel to 3D point in the camera frame
         point_3d = self.camera_model.projectPixelTo3dRay((x, y))
         point_3d = np.array(point_3d) * depth  # Scale the ray by the depth
@@ -104,6 +107,7 @@ class Ultralytics:
         position.point.x = point_3d[0]
         position.point.y = point_3d[1]
         position.point.z = point_3d[2]
+        
         # transform the position to base_link frame
         position = self.transform_position(position)
         return position
@@ -112,9 +116,11 @@ class Ultralytics:
     def detect(self,request):
         det_result = self.detection_model(self.color_image)
         
-        # # annotate the result and save the image
+        ################ this is for debugging ################
+        # annotate the result and save the image
         det_annotated = det_result[0].plot(show=False)
         cv2.imwrite("annotated.jpg", det_annotated)
+        #######################################################
 
         # extract id, class, position from detection result
         class_names = det_result[0].names
