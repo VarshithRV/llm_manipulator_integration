@@ -89,10 +89,12 @@ class Ultralytics:
         depth = (self.depth_image[y, x])/1000  # Convert to meters
         if np.isnan(depth) or depth == 0:
             rospy.logwarn("Invalid depth at pixel ({}, {})".format(x, y))
-            mask = self.depth_image != 0
-
             ########## this is for debugging ###########
-            cv2.imwrite("invalid depth.jpg", mask.astype(np.uint8)*255)
+            mask = self.depth_image != 0
+            mask = mask.astype(np.uint8)*255
+            # draw a orange circle at the invalid depth pixel
+            cv2.circle(mask, (x, y), 5, (255, 165, 0), -1)
+            cv2.imwrite("invalid depth.jpg", mask)
             ############################################
             return
         
@@ -126,6 +128,7 @@ class Ultralytics:
         dtype_result = json.loads(json_result)
 
         result = ObjectPositions()
+        result.image = self.cv_bridge.cv2_to_imgmsg(self.color_image, encoding="bgr8")
         index = 0
 
         for detection in dtype_result:
@@ -140,6 +143,10 @@ class Ultralytics:
                 object_position.id = index
                 object_position.Class = class_names[detection["class"]]
                 object_position.position = position
+                object_position.x_min = int(detection["box"]["x1"])
+                object_position.x_max = int(detection["box"]["x2"])
+                object_position.y_min = int(detection["box"]["y1"])
+                object_position.y_max = int(detection["box"]["y2"])
                 result.object_position.append(object_position)
 
                 ########## this is for testing ###########
