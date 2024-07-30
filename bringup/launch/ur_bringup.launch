@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find ur_robot_driver)/launch/ur16e_bringup.launch">
+        <arg name="robot_ip" value="192.168.1.3"/>
+        <arg name="kinematics_config" value="/home/barracuda/my_robot_calibration.yaml"/>
+    </include>
+    <include file="$(find ur16e_moveit_config)/launch/move_group.launch"/>
+    <include file="$(find ur16e_moveit_config)/launch/moveit_rviz.launch"/>
+    <!-- <node pkg="rosserial_python" type="serial_node.py" name="serial_client" args = "/dev/ttyACM0" output="screen"/> -->
+    <node pkg="final_pkg" type="Try.py" name="Action_server" output="screen">
+        <param name="port" value="5000"/>
+    </node>
+</launch>

@@ -1,0 +1,8 @@
+# Action Goal
+int64 task_number
+---
+# Action Result
+bool success
+---
+# Action Feedback
+int64 percentage
