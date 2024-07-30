@@ -75,14 +75,14 @@ class CentralClient:
     # execute all the actions in the action list one by one here.
     def execute_actions(self, action_list):
         print("Executing actions ...")
-        for action in action_list:
-            print("Executing action : ", action["action_type"])
-            print("Source object position : ")
-            print(action["source_object_position"])
-            print("Target object position : ") 
-            print(action["target_object_position"])
-            rospy.sleep(1)
-
+        # for action in action_list:
+        #     print("Executing action : ", action["action_type"])
+        #     print("Source object position : ")
+        #     print(action["source_object_position"])
+        #     print("Target object position : ") 
+        #     print(action["target_object_position"])
+        #     rospy.sleep(1)
+        print(action_list)
 
 
 if __name__ == "__main__":
@@ -90,16 +90,18 @@ if __name__ == "__main__":
     central_client = CentralClient()
     rospy.sleep(0.1)
     
+    time = rospy.Time.now()
     # Call the service, response contains object_positions, bouding_boxes and image
     response = central_client.get_object_locations()
-
-    rospy.sleep(0.5)
+    print("Objects detected in time : ", rospy.Time.to_sec(rospy.Time.now()-time))
+    time = rospy.Time.now()
+    # rospy.sleep(0.5)
     # instruction = "pick up the orange object"
     instruction = "pick up all the oranges and place it in a bowl"
-    print("Requesting for plan ...")
+    print("Requesting for plan from API ...")
     print("Prompt : ", instruction)
-
     plan = central_client.test_demo_api(instruction, response)
+    print("API finished in time : ", rospy.Time.to_sec(rospy.Time.now()-time))
     # contains the list of actions
     # action {"action_type":"pick_and_place", "source_object_id":"4", "target_object_id":"5"}
     # print(plan["plan_actions"])

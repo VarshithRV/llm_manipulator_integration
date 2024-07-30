@@ -133,7 +133,11 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        base:
+          Value: true
         base_link:
+          Value: true
+        base_link_inertia:
           Value: true
         camera_accel_frame:
           Value: false
@@ -163,8 +167,26 @@ Visualization Manager:
           Value: false
         camera_link:
           Value: false
+        flange:
+          Value: true
+        forearm_link:
+          Value: true
         map:
           Value: false
+        shoulder_link:
+          Value: true
+        tool0:
+          Value: true
+        tool0_controller:
+          Value: true
+        upper_arm_link:
+          Value: true
+        wrist_1_link:
+          Value: true
+        wrist_2_link:
+          Value: true
+        wrist_3_link:
+          Value: true
       Marker Alpha: 1
       Marker Scale: 1
       Name: TF
@@ -179,6 +201,19 @@ Visualization Manager:
           camera_aligned_depth_to_color_frame:
             camera_color_optical_frame:
               base_link:
+                base:
+                  tool0_controller:
+                    {}
+                base_link_inertia:
+                  shoulder_link:
+                    upper_arm_link:
+                      forearm_link:
+                        wrist_1_link:
+                          wrist_2_link:
+                            wrist_3_link:
+                              flange:
+                                tool0:
+                                  {}
                 map:
                   {}
           camera_color_frame:
@@ -219,6 +254,73 @@ Visualization Manager:
       Topic: /orange_position
       Unreliable: false
       Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_link_inertia:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        flange:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        shoulder_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wrist_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wrist_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wrist_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -247,7 +349,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.615843772888184
+      Distance: 2.4684600830078125
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -255,17 +357,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.0029749227687716484
-        Y: 0.13927096128463745
-        Z: 0.04960377886891365
+        X: -0.3106870651245117
+        Y: -0.29745379090309143
+        Z: 0.47642454504966736
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5947969555854797
+      Pitch: 0.159795343875885
       Target Frame: <Fixed Frame>
-      Yaw: 4.834903240203857
+      Yaw: 5.664905071258545
     Saved: ~
 Window Geometry:
   Displays:

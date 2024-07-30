@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   darknet_ros
   darknet_ros_msgs
   image_geometry
-  gazebo
   geometry_msgs
   realsense2_camera
   realsense2_description
