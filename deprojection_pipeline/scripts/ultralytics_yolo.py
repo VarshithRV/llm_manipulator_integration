@@ -117,7 +117,7 @@ class Ultralytics:
         det_result = self.detection_model(self.color_image)
         
         ################ this is for debugging ################
-        # annotate the result and save the image
+        # annotate the result and save the image with the object id and class
         det_annotated = det_result[0].plot(show=False)
         cv2.imwrite("annotated.jpg", det_annotated)
         #######################################################
@@ -132,7 +132,7 @@ class Ultralytics:
         index = 0
 
         for detection in dtype_result:
-            if detection["confidence"] > 0.5:
+            if detection["confidence"] > 0.2:
                 x = int((detection["box"]["x1"] + detection["box"]["x2"]) / 2)
                 y = int((detection["box"]["y1"] + detection["box"]["y2"]) / 2)
                 position = self.get_3d_position(x,y)

@@ -9,6 +9,7 @@ import os
 import image_geometry
 import tf.transformations as tr
 import pickle
+import moveit_commander
 
 class Calibration:
     def __init__(self)->None:
@@ -25,6 +26,8 @@ class Calibration:
                                         os.environ["USER"], 
                                         "catkin_ws/src/llm_manipulator_integration/deprojection_pipeline/config",
                                         "camera_color_optical_frame_transformation.bin")
+
+        self.arm_move_group = moveit_commander.MoveGroupCommander("manipulator")
 
         self.rgb_image_subscriber = rospy.Subscriber(
             "/camera/color/image_raw",
@@ -242,11 +245,15 @@ if __name__ == "__main__":
         input("Press enter to capture the image")
         point_stamped = calibration.find_red_fiducial()
         camera_points.append([point_stamped.point.x, point_stamped.point.y, point_stamped.point.z])
-        
         input("Presss enter to input robot coordinates : ")
-        x = float(input("Enter the x coordinate of the robot: "))
-        y = float(input("Enter the y coordinate of the robot: "))
-        z = float(input("Enter the z coordinate of the robot: "))
+        tool_position = calibration.arm_move_group.get_current_pose()
+        print("Tool position = ", tool_position)
+        # x = float(input("Enter the x coordinate of the robot: "))
+        # y = float(input("Enter the y coordinate of the robot: "))
+        # z = float(input("Enter the z coordinate of the robot: "))
+        x = tool_position.pose.position.x + 0.0057
+        y = tool_position.pose.position.y - 0.0035
+        z = tool_position.pose.position.z - 0.1011
         robot_points.append([x, y, z])
 
     # # if already have the points, just uncomment the following lines and comment the for loop

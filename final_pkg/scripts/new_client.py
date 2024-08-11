@@ -9,7 +9,7 @@ import json
 import requests
 
 class CentralClient:
-    def __init__(self) -> None:
+    def _init_(self) -> None:
         self.get_object_locations_service = rospy.ServiceProxy(
             "get_object_locations",
             GetObjectLocations
@@ -33,7 +33,7 @@ class CentralClient:
         self,
         instruction: str,
         response: GetObjectLocationsResponse,
-        url: str = "https://robot-api-2.glitch.me/handle_request",
+        url: str = "https://handsomely-lying-octagon.glitch.me/generate_plan",
         ):
         
 
@@ -57,9 +57,6 @@ class CentralClient:
             )  
         
         # print("Calling API with objects : ",response.result.object_position)
-        # for object in objects, object_position in response.result.object_position:
-        #     print("Object id :",object["object_id"])
-        #     print("Class : ",object_position.Class)
 
         image = {
             "base64_string": self.convert_image_to_text(image_),
@@ -70,64 +67,46 @@ class CentralClient:
             "instruction": instruction,
             "images": [image],
         }
-        
-        print(data["instruction"], image["objects"])
+
         headers = {"Content-Type": "application/json"}
-        content = dict(data=data, job_type="planning")
-        response = requests.post(url, data=json.dumps(content), headers=headers)
+        response = requests.post(url, data=json.dumps(data), headers=headers)
         return response.json()
     
     # execute all the actions in the action list one by one here.
     def execute_actions(self, action_list):
         print("Executing actions ...")
-        # for action in action_list:
-        #     print("Executing action : ", action["action_type"])
-        #     print("Source object position : ")
-        #     print(action["source_object_position"])
-        #     print("Target object position : ") 
-        #     print(action["target_object_position"])
-        #     rospy.sleep(1)
-        # print(action_list)
+        for action in action_list:
+            print("Executing action : ", action["action_type"])
+            print("Source object position : ")
+            print(action["source_object_position"])
+            print("Target object position : ") 
+            print(action["target_object_position"])
+            rospy.sleep(1)
 
 
-if __name__ == "__main__":
+
+if __name__ == "_main_":
     rospy.init_node("central_client")
     central_client = CentralClient()
     rospy.sleep(0.1)
     
-    time = rospy.Time.now()
     # Call the service, response contains object_positions, bouding_boxes and image
     response = central_client.get_object_locations()
-    # printing the object id and corresponding classes
-    for object_thing in response.result.object_position:
-        print("Object ID : ", object_thing.id)
-        print("Object Class : ", object_thing.Class)
 
-
-    print("Objects detected in time : ", rospy.Time.to_sec(rospy.Time.now()-time))
-    time = rospy.Time.now()
-    
-    
-    # calling the API to get the plan
-    # print("Enter the prompt :")
-    instruction = input("Enter the prompt : ")
-    # instruction = "Pick the apple and put it in the bowl"
-    print("Requesting for plan from API ...")
+    rospy.sleep(0.5)
+    # instruction = "pick up the orange object"
+    instruction = "pick up all the oranges and place it in the bowl"
+    print("Requesting for plan ...")
     print("Prompt : ", instruction)
+
     plan = central_client.test_demo_api(instruction, response)
-    print("API finished in time : ", rospy.Time.to_sec(rospy.Time.now()-time))
-    
-    
     # contains the list of actions
     # action {"action_type":"pick_and_place", "source_object_id":"4", "target_object_id":"5"}
+    # print(plan["plan_actions"])
     for action in plan["plan_actions"]:
         action["source_object_id"] = int(action["source_object_id"])
         action["target_object_id"] = int(action["target_object_id"])
 
-    # prints the raw action list received from the API
-    print(plan["plan_actions"])
-
-    # substitting the object id with the object position
     action_list = []
     for action in plan["plan_actions"]:
         action_parsed = {}
@@ -136,6 +115,4 @@ if __name__ == "__main__":
         action_parsed["target_object_position"] = response.result.object_position[action["target_object_id"]].position
         action_list.append(action_parsed)
 
-
-    # simulate execution of the actions
     central_client.execute_actions(action_list)

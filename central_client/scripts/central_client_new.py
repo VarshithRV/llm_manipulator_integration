@@ -2,7 +2,8 @@ import rospy
 from deprojection_pipeline_msgs.srv import GetObjectLocations, GetObjectLocationsResponse
 import cv_bridge
 import cv2
-from PIL import Image
+from PIL import Image, ImageDraw
+import numpy as np, random
 import io
 import base64
 import json
@@ -33,7 +34,7 @@ class CentralClient:
         self,
         instruction: str,
         response: GetObjectLocationsResponse,
-        url: str = "https://robot-api-2.glitch.me/handle_request",
+        url: str = "https://handsomely-lying-octagon.glitch.me/generate_plan",
         ):
         
 
@@ -73,11 +74,10 @@ class CentralClient:
         
         print(data["instruction"], image["objects"])
         headers = {"Content-Type": "application/json"}
-        content = dict(data=data, job_type="planning")
-        response = requests.post(url, data=json.dumps(content), headers=headers)
+        response = requests.post(url, data=json.dumps(data), headers=headers)
         return response.json()
-    
-    # execute all the actions in the action list one by one here.
+
+        # execute all the actions in the action list one by one here.
     def execute_actions(self, action_list):
         print("Executing actions ...")
         # for action in action_list:
@@ -88,6 +88,51 @@ class CentralClient:
         #     print(action["target_object_position"])
         #     rospy.sleep(1)
         # print(action_list)
+
+
+def convert_image_to_text(image: Image) -> str:
+    # This is also how OpenAI encodes images: https://platform.openai.com/docs/guides/vision
+    # from PIL import Image
+    # import io
+    # import base64
+
+    with io.BytesIO() as output:
+        image.save(output, format="PNG")
+        data = output.getvalue()
+    return base64.b64encode(data).decode("utf-8")
+
+
+def test_demo_api(
+    image_path: str = "assets/demo_broccoli_and_hotdog.png",
+    url: str = "https://robot-api-2.glitch.me/handle_request",
+):
+    # wget https://cdn.glitch.global/1ab1555e-3a98-4cdc-b609-9ca116d921fd/demo_broccoli_and_hotdog.png
+    # import requests
+
+    image = {
+        "base64_string": convert_image_to_text(Image.open(image_path)),
+        "objects": [
+            {"object_id": "1", "x_min": 210, "y_min": 220, "x_max": 777, "y_max": 798},
+            {"object_id": "2", "x_min": 340, "y_min": 393, "x_max": 635, "y_max": 667},
+            {"object_id": "3", "x_min": 653, "y_min": 202, "x_max": 1000, "y_max": 805},
+            {"object_id": "4", "x_min": 757, "y_min": 282, "x_max": 932, "y_max": 737},
+        ],
+    }
+
+    data = {
+        "instruction": "Please swap the food positions.",
+        "images": [image],
+    }
+
+    headers = {"Content-Type": "application/json"}
+    content = dict(data=data, job_type="planning")
+    response = requests.post(url, data=json.dumps(content), headers=headers)
+    print(response.json())
+
+    # {'raw_output': 'Plan:\n1. pick_and_place(2, 3)\n2. pick_and_place(4, 1)\n3. done()', 'success': True, 'plan_actions': [{'action_type': 'pick_and_place', 'source_object_id': '2', 'target_object_id': '3'}, {'action_type': 'pick_and_place', 'source_object_id': '4', 'target_object_id': '1'}]}
+
+    
+    
 
 
 if __name__ == "__main__":

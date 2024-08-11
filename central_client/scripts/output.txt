@@ -1,0 +1,16 @@
+Object ID :  0
+Object Class :  orange
+Object ID :  1
+Object Class :  orange
+Object ID :  2
+Object Class :  apple
+Object ID :  3
+Object Class :  dining table
+Objects detected in time :  0.152883052
+Enter the prompt :
+Requesting for plan from API ...
+Prompt :  pick an orange and place it in a bowl
+pick an orange and place it in a bowl [{'object_id': 0, 'x_min': 311, 'y_min': 243, 'x_max': 345, 'y_max': 277}, {'object_id': 1, 'x_min': 375, 'y_min': 245, 'x_max': 413, 'y_max': 286}, {'object_id': 2, 'x_min': 375, 'y_min': 245, 'x_max': 413, 'y_max': 286}, {'object_id': 3, 'x_min': 1, 'y_min': 0, 'x_max': 610, 'y_max': 476}]
+API finished in time :  15.913708448
+[{'action_type': 'pick_and_place', 'source_object_id': 0, 'target_object_id': 2}]
+Executing actions ...
