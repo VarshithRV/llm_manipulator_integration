@@ -1,0 +1,5 @@
+geometry_msgs/PointStamped source
+geometry_msgs/PointStamped destination
+---
+bool result
+---

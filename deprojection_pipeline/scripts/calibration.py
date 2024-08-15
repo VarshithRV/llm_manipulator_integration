@@ -113,8 +113,11 @@ class Calibration:
         rgb_image = self.rgb_image
 
         # mask for red
-        lower_red = np.array([0, 0, 160])
-        upper_red = np.array([100, 100, 255])
+        # lower_red = np.array([0, 0, 160])
+        # upper_red = np.array([100, 100, 255])
+
+        lower_red = np.array([90, 90, 160])
+        upper_red = np.array([115, 115, 255])
 
         # find centroid of the red fiducial
         mask = cv2.inRange(rgb_image, lower_red, upper_red)
@@ -243,9 +246,15 @@ if __name__ == "__main__":
     for i in range(4):
         print("Move the robot to the fiducial ", i+1)
         input("Press enter to capture the image")
-        point_stamped = calibration.find_red_fiducial()
+        flag = False
+        while flag == False:
+            point_stamped = calibration.find_red_fiducial()
+            x = input("Press c to contine or press enter to capture again : ")
+            if x == "c":
+                flag = True
+            
         camera_points.append([point_stamped.point.x, point_stamped.point.y, point_stamped.point.z])
-        input("Presss enter to input robot coordinates : ")
+        input("Press Enter to capture robot coordinates : ")
         tool_position = calibration.arm_move_group.get_current_pose()
         print("Tool position = ", tool_position)
         # x = float(input("Enter the x coordinate of the robot: "))

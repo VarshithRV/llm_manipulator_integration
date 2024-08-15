@@ -89,6 +89,8 @@ class CentralClient:
         #     rospy.sleep(1)
         # print(action_list)
 
+        # here there should be a client for our action
+
 
 if __name__ == "__main__":
     rospy.init_node("central_client")
@@ -118,6 +120,10 @@ if __name__ == "__main__":
     print("API finished in time : ", rospy.Time.to_sec(rospy.Time.now()-time))
     
     
+    # display the plan
+    print(plan["plan_actions"])
+    input("Press Enter to continue ...")
+    
     # contains the list of actions
     # action {"action_type":"pick_and_place", "source_object_id":"4", "target_object_id":"5"}
     for action in plan["plan_actions"]:
@@ -130,10 +136,20 @@ if __name__ == "__main__":
     # substitting the object id with the object position
     action_list = []
     for action in plan["plan_actions"]:
-        action_parsed = {}
-        action_parsed["action_type"] = action["action_type"]
-        action_parsed["source_object_position"] = response.result.object_position[action["source_object_id"]].position
-        action_parsed["target_object_position"] = response.result.object_position[action["target_object_id"]].position
+        # get the class of the object for the source object
+        source_object_class = response.result.object_position[action["source_object_id"]].Class
+        if source_object_class == "orange":
+            response.result.object_position[action["source_object_id"]].position.point.z += 0
+        if source_object_class == "carrot":
+            response.result.object_position[action["source_object_id"]].position.point.z -= 0.008
+        if source_object_class == "apple":
+            response.result.object_position[action["source_object_id"]].position.point.z -= 0.017
+        
+        action_parsed = {
+            "action_type": action["action_type"],
+            "source_object_position": response.result.object_position[action["source_object_id"]].position,
+            "target_object_position": response.result.object_position[action["target_object_id"]].position
+        }
         action_list.append(action_parsed)
 
 

@@ -33,7 +33,7 @@ class CentralClient:
         self,
         instruction: str,
         response: GetObjectLocationsResponse,
-        url: str = "https://handsomely-lying-octagon.glitch.me/generate_plan",
+        url: str = "https://robot-api-2.glitch.me/handle_request",
         ):
         
 
@@ -73,7 +73,8 @@ class CentralClient:
         
         print(data["instruction"], image["objects"])
         headers = {"Content-Type": "application/json"}
-        response = requests.post(url, data=json.dumps(data), headers=headers)
+        content = dict(data=data, job_type="planning")
+        response = requests.post(url, data=json.dumps(content), headers=headers)
         return response.json()
     
     # execute all the actions in the action list one by one here.
@@ -87,6 +88,8 @@ class CentralClient:
         #     print(action["target_object_position"])
         #     rospy.sleep(1)
         # print(action_list)
+
+        # here there should be a client for our action
 
 
 if __name__ == "__main__":
