@@ -7,6 +7,12 @@ import io
 import base64
 import json
 import requests
+from geometry_msgs.msg import PointStamped
+from motion_planning_server_msgs.msg import PickPlaceAction, PickPlaceGoal, PickPlaceResult
+from motion_planning_server_msgs.msg import MovePreactionAction, MovePreactionActionGoal, MovePreactionActionResult
+import actionlib
+
+
 
 class CentralClient:
     def __init__(self) -> None:
@@ -14,6 +20,10 @@ class CentralClient:
             "get_object_locations",
             GetObjectLocations
         )
+        self.pick_place_client = actionlib.SimpleActionClient("pick_place", PickPlaceAction)
+        self.move_preaction_client = actionlib.SimpleActionClient("move_preaction", MovePreactionAction)
+        self.pick_place_client.wait_for_server()
+        self.move_preaction_client.wait_for_server()
 
     def get_object_locations(self):
         try:
@@ -54,12 +64,7 @@ class CentralClient:
                     "x_max": object_position.x_max,
                     "y_max": object_position.y_max,
                 }
-            )  
-        
-        # print("Calling API with objects : ",response.result.object_position)
-        # for object in objects, object_position in response.result.object_position:
-        #     print("Object id :",object["object_id"])
-        #     print("Class : ",object_position.Class)
+            ) 
 
         image = {
             "base64_string": self.convert_image_to_text(image_),
@@ -79,18 +84,35 @@ class CentralClient:
     
     # execute all the actions in the action list one by one here.
     def execute_actions(self, action_list):
+        rospy.loginfo("Sending move preaction goal")
+        move_preaction_goal = MovePreactionActionGoal()
+        self.move_preaction_client.send_goal(move_preaction_goal)
+        self.move_preaction_client.wait_for_result()
+        move_preaction_result = self.move_preaction_client.get_result()
+        print("Move preaction result : ", move_preaction_result.result)
         print("Executing actions ...")
-        # for action in action_list:
-        #     print("Executing action : ", action["action_type"])
-        #     print("Source object position : ")
-        #     print(action["source_object_position"])
-        #     print("Target object position : ") 
-        #     print(action["target_object_position"])
-        #     rospy.sleep(1)
-        # print(action_list)
+        
+        for action in action_list:
+            source = action["source_object_position"]
+            destination = action["target_object_position"]
+            rospy.loginfo("Sending pick and place goal")
+            pick_place_goal = PickPlaceGoal()
+            pick_place_goal.source = source
+            pick_place_goal.destination = destination
+            self.pick_place_client.send_goal(pick_place_goal)
+            self.pick_place_client.wait_for_result()
+            pick_place_result = self.pick_place_client.get_result()
+            print("Pick and place result : ", pick_place_result.result)
+            rospy.sleep(1)
 
-        # here there should be a client for our action
+        rospy.loginfo("Sending move preaction goal")
+        move_preaction_goal = MovePreactionActionGoal()
+        self.move_preaction_client.send_goal(move_preaction_goal)
+        self.move_preaction_client.wait_for_result()
+        move_preaction_result = self.move_preaction_client.get_result()
+        print("Move preaction result : ", move_preaction_result.result)
 
+        print("Done")
 
 if __name__ == "__main__":
     rospy.init_node("central_client")
@@ -122,6 +144,7 @@ if __name__ == "__main__":
     
     # display the plan
     print(plan["plan_actions"])
+    print("Explanation : ",plan["raw_output"])
     input("Press Enter to continue ...")
     
     # contains the list of actions
@@ -133,17 +156,19 @@ if __name__ == "__main__":
     # prints the raw action list received from the API
     print(plan["plan_actions"])
 
-    # substitting the object id with the object position
+    # substituting the object id with the object position
     action_list = []
     for action in plan["plan_actions"]:
         # get the class of the object for the source object
         source_object_class = response.result.object_position[action["source_object_id"]].Class
         if source_object_class == "orange":
-            response.result.object_position[action["source_object_id"]].position.point.z += 0
+            response.result.object_position[action["source_object_id"]].position.point.z -= 0.02
         if source_object_class == "carrot":
-            response.result.object_position[action["source_object_id"]].position.point.z -= 0.008
+            response.result.object_position[action["source_object_id"]].position.point.z -= 0.02
         if source_object_class == "apple":
-            response.result.object_position[action["source_object_id"]].position.point.z -= 0.017
+            response.result.object_position[action["source_object_id"]].position.point.z = response.result.object_position[action["source_object_id"]].position.point.z - 0.015
+            response.result.object_position[action["source_object_id"]].position.point.x -= 0
+            response.result.object_position[action["source_object_id"]].position.point.y += 0.02
         
         action_parsed = {
             "action_type": action["action_type"],
@@ -153,5 +178,5 @@ if __name__ == "__main__":
         action_list.append(action_parsed)
 
 
-    # simulate execution of the actions
+    # execution of the actions
     central_client.execute_actions(action_list)

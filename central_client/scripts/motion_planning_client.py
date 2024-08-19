@@ -5,14 +5,25 @@ from geometry_msgs.msg import PointStamped
 from motion_planning_server_msgs.msg import PickPlaceAction, PickPlaceGoal, PickPlaceResult
 from motion_planning_server_msgs.msg import MovePreactionAction, MovePreactionActionGoal, MovePreactionActionResult
 import actionlib
-
+from deprojection_pipeline_msgs.srv import GetObjectLocations, GetObjectLocationsResponse
 
 class MpClass:
     def __init__(self):
         self.pick_place_client = actionlib.SimpleActionClient("pick_place", PickPlaceAction)
         self.move_preaction_client = actionlib.SimpleActionClient("move_preaction", MovePreactionAction)
-        # self.pick_place_client.wait_for_server()
+        self.pick_place_client.wait_for_server()
         self.move_preaction_client.wait_for_server()
+        # self.get_object_locations_service = rospy.ServiceProxy(
+        #     "get_object_locations",
+        #     GetObjectLocations
+        # )
+    
+    # def get_object_locations(self):
+    #     try:
+    #         response = self.get_object_locations_service()
+    #         return response
+    #     except rospy.ServiceException as e:
+    #         print(f"Service call failed: {e}")
 
 
 if __name__ == "__main__":
@@ -26,6 +37,16 @@ if __name__ == "__main__":
     destination.point.x = -0.2912284669589617
     destination.point.y = -0.3669910503400372
     destination.point.z = 0.014983440602635567 #+ 0.20
+
+    # detect objects
+    # source_position = PointStamped()
+    # destination_position = PointStamped()
+    # object_name = "carrot"
+
+    # response = mp.get_object_locations()
+    # for object in response.result.object_position:
+    #     print(object.object_name)
+    #     print(object.object_position)
 
     rospy.loginfo("Sending pick and place goal")
     pick_place_goal = PickPlaceGoal()
