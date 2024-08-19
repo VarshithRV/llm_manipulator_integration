@@ -38,6 +38,41 @@ if __name__ == "__main__":
     destination.point.y = -0.3669910503400372
     destination.point.z = 0.014983440602635567 #+ 0.20
 
+    action_list = []
+    
+    source_1_position = PointStamped()
+    source_2_position = PointStamped()
+    source_3_position = PointStamped()
+    destination_position = PointStamped()
+
+
+    # these are the fixed co-ordinates for the objects that can be used for testing
+    # source_1_position.point.x = -0.11079056151090363
+    # source_1_position.point.y = -0.4831845311843534
+    # source_1_position.point.z = 0.04554612949580239 - 0.02
+    # source_2_position.point.x =  -0.25055244338918636
+    # source_2_position.point.y = -0.6880319654187088
+    # source_2_position.point.z = 0.030098766974563707 - 0.02
+    # source_3_position.point.x =  -0.1373833868751858
+    # source_3_position.point.y = -0.7356613322736578
+    # source_3_position.point.z = 0.05292135332072356 - 0.02
+    # destination_position.point.x = -0.2912284669589617
+    # destination_position.point.y = -0.3669910503400372
+    # destination_position.point.z = 0.014983440602635567 + 0.05
+
+    # plan1 = {"action_type":"pick_and_place", 
+    #          "source_object_position":source_1_position,
+    #          "target_object_position":destination_position
+    #          }
+    # plan2 = {"action_type":"pick_and_place", 
+    #          "source_object_position":source_2_position,
+    #          "target_object_position":destination_position
+    #          }
+    # plan3 = {"action_type":"pick_and_place", 
+    #          "source_object_position":source_3_position,
+    #          "target_object_position":destination_position
+    #          }
+
     # detect objects
     # source_position = PointStamped()
     # destination_position = PointStamped()
