@@ -3,11 +3,7 @@
     <include file="$(find realsense2_camera)/launch/rs_aligned_depth.launch">
         <arg name="enable_pointcloud" value="true"/>
     </include>
-    <!-- <node pkg="deprojection_pipeline" type="darknet_realsense_pipe.py" name="darknet_realsense_pipe" /> -->
-    <!-- <include file="$(find darknet_ros)/launch/darknet_ros.launch"/> -->
-    <!-- <node pkg="deprojection_pipeline" type="deprojection.py" name="get_locations_server"/> -->
     <node pkg="deprojection_pipeline" type="camera_color_optical_frame_static_publisher.py" name="base_link_static_publisher" />
     <node pkg="deprojection_pipeline" type="base_link_map_static_publisher.py" name="map_static_publisher" />
-    <!-- <node pkg="deprojection_pipeline" type="calibration_validation.py" name="base_link_position_publisher"/>  -->
     <node pkg="rviz" type="rviz" name="rviz_camera_server" args="-d $(find deprojection_pipeline)/rviz/fiducial2_viz.rviz"/>
 </launch>

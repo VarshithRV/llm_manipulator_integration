@@ -112,7 +112,8 @@ class Deprojection:
         
         # return result
         return GetObjectLocationsResponse(result)
-    
+
+
     def bounding_boxes_callback(self, msg: BoundingBoxes):
         self.bounding_boxes = list()
         for box in msg.bounding_boxes:
