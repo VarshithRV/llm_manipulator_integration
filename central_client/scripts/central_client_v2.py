@@ -273,21 +273,20 @@ if __name__ == "__main__":
         #  label specific position adjustments
         if object_3d["label"] == "orange":
             object_3d["position"].point.z -= 0.01
-            object_3d["position"].point.x -= 0.00
-            object_3d["position"].point.y += 0.00
+            object_3d["position"].point.x += 0.02
+            object_3d["position"].point.y += 0.02
         if object_3d["label"] == "carrot":
             object_3d["position"].point.z -= 0.00
-            object_3d["position"].point.x -= 0.00
-            object_3d["position"].point.y += 0.00
+            object_3d["position"].point.x += 0.02
+            object_3d["position"].point.y += 0.02
         if object_3d["label"] == "apple":
             object_3d["position"].point.z -= 0.01
-            object_3d["position"].point.x -= 0.00
-            object_3d["position"].point.y += 0.00
+            object_3d["position"].point.x += 0.01
+            object_3d["position"].point.y += 0.01
         if object_3d["label"] == "brocolli":
             object_3d["position"].point.z -= 0.00
-            object_3d["position"].point.z -= 0.00
-            object_3d["position"].point.x -= 0.00
-            object_3d["position"].point.y += 0.00        
+            object_3d["position"].point.x += 0.02
+            object_3d["position"].point.y += 0.02        
         
         objects_3d.append(object_3d)
 
