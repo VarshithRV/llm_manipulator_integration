@@ -23,7 +23,7 @@ from deep_translator import GoogleTranslator
 from gtts import gTTS
 import pygame
 import io
-
+import sys
 
 
 class CentralClient:
@@ -44,6 +44,9 @@ class CentralClient:
         self.pick_place_client = actionlib.SimpleActionClient("pick_place", PickPlaceAction)
         # action client for moving to preaction position
         self.move_preaction_client = actionlib.SimpleActionClient("move_preaction", MovePreactionAction)
+        # action client for cleaning
+        self.clean_client = actionlib.SimpleActionClient("clean", PickPlaceAction)
+        self.clean_client.wait_for_server()
         self.pick_place_client.wait_for_server()
         self.move_preaction_client.wait_for_server()
 
@@ -109,6 +112,16 @@ class CentralClient:
         self.move_preaction_client.wait_for_result()
         move_preaction_result = self.move_preaction_client.get_result()
         print("Move preaction result : ", move_preaction_result.result)
+        
+        clean_goal = PickPlaceGoal()
+        clean_goal.source = PointStamped()
+        clean_goal.destination = PointStamped()
+        print("Cleansing the Gripper")
+        self.clean_client.send_goal(clean_goal)
+        self.clean_client.wait_for_result()
+        clean_result = self.clean_client.get_result()
+        print("clean result : ", clean_result.result)
+        
         print("Executing actions ...")
         
         for action in action_list:
@@ -127,7 +140,17 @@ class CentralClient:
             self.pick_place_client.wait_for_result()
             pick_place_result = self.pick_place_client.get_result()
             print("Pick and place result : ", pick_place_result.result)
-            rospy.sleep(0.5)
+            rospy.sleep(0.3)
+            # x = input("Press Enter to continue")
+
+        clean_goal = PickPlaceGoal()
+        clean_goal.source = PointStamped()
+        clean_goal.destination = PointStamped()
+        print("Cleansing the Gripper")
+        self.clean_client.send_goal(clean_goal)
+        self.clean_client.wait_for_result()
+        clean_result = self.clean_client.get_result()
+        print("clean result : ", clean_result.result)
 
         rospy.loginfo("Sending move preaction goal")
         move_preaction_goal = MovePreactionActionGoal()
@@ -202,6 +225,38 @@ def text_to_speech(text, lang='en'):
         pygame.time.Clock().tick(10)  # 等待播放结束
     
 
+def speech_to_text():
+    # 初始化识别器
+    recognizer = sr.Recognizer()
+
+    # 使用默认的麦克风
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
+        print("Listening for speech...")
+        print("Please speak something...")
+        audio = recognizer.listen(source)
+
+        # 尝试使用不同的语言进行识别
+        languages = ['en-US']  # 英语、简体中文
+        # languages = ['zh-CN']
+        text_result=""
+        for lang in languages:
+            try:
+                # 使用 Google 的语音识别服务
+                text = recognizer.recognize_google(audio, language=lang)
+                print(f"Detected ({lang}): " + text)
+                text_result=text
+                if lang != 'en-US':
+                    # 翻译成英语
+                    text = GoogleTranslator(source='auto', target='en').translate(text)
+                    print("Translated to English: " + text)
+                    text_result=text
+            except sr.UnknownValueError:
+                print(f"Google Speech Recognition could not understand audio in {lang}")
+            except sr.RequestError as e:
+                print(f"Could not request results from Google Speech Recognition service in {lang}; {e}")
+    return text_result
+
 # driver for the central client
 if __name__ == "__main__":
     rospy.init_node("central_client")
@@ -209,7 +264,8 @@ if __name__ == "__main__":
     rospy.sleep(0.1)
     
     # get instruction from the user
-    instruction = input("Enter the prompt : ")
+    # instruction = input("Enter the prompt : ")
+    instruction = speech_to_text()
     print("Requesting for plan from API ...")
     print("Prompt : ", instruction)
     print("Getting plan ...")
@@ -267,33 +323,24 @@ if __name__ == "__main__":
         label = object["label"]
         label = label.split(" ")
         object_3d["id"] = int(label[0])
-        object_3d["label"] = label[1]
+        # object_3d["label"] = label[1] + " " + label[2]
+        # loop through the label to get the full label
+        object_3d["label"] = ""
+        for i in range(1, len(label)):
+            object_3d["label"] += label[i] + " "
         object_3d["position"] = position
         
         # label generic position adjustments
         object_3d["position"].point.x += 0.01
         object_3d["position"].point.y += 0.01
-        object_3d["position"].point.z -= 0.02
+        object_3d["position"].point.z -= 0.00
 
-
+        print("object : ", object_3d["label"])
         #  label specific position adjustments
-        if object_3d["label"] == "orange":
+        if object_3d["label"] == "green beans bowl ":
             object_3d["position"].point.z -= 0.01
-            object_3d["position"].point.x += 0.02
-            object_3d["position"].point.y += 0.02
-        if object_3d["label"] == "carrot":
-            object_3d["position"].point.z -= 0.00
-            object_3d["position"].point.x += 0.02
-            object_3d["position"].point.y += 0.02
-        if object_3d["label"] == "apple":
-            object_3d["position"].point.z -= 0.01
-            object_3d["position"].point.x += 0.01
-            object_3d["position"].point.y += 0.01
-        if object_3d["label"] == "brocolli":
-            object_3d["position"].point.z -= 0.00
-            object_3d["position"].point.x += 0.02
-            object_3d["position"].point.y += 0.02        
-        
+        if object_3d["label"] == "purple onions bowl ":
+            object_3d["position"].point.z -= 0.017
         objects_3d.append(object_3d)
 
     for action in plan_actions:
