@@ -99,7 +99,6 @@ class Motion_planner:
             (plan, fraction) = self.move_group.compute_cartesian_path(
                 waypoints,  # waypoints to follow
                 0.01,  # eef_step
-                0.0,  # jump_threshold
             )
         except Exception as e:
             print(e)
@@ -143,7 +142,6 @@ class Motion_planner:
             (plan, fraction) = self.move_group.compute_cartesian_path(
                 waypoints,  # waypoints to follow
                 0.01,  # eef_step
-                0.0,  # jump_threshold
             )
         except Exception as e:
             print(e)
@@ -181,7 +179,6 @@ class Motion_planner:
             (plan, fraction) = self.move_group.compute_cartesian_path(
                 waypoints,  # waypoints to follow
                 0.01,  # eef_step
-                0.0,  # jump_threshold
             )
         except Exception as e:
             print(e)
@@ -218,7 +215,6 @@ class Motion_planner:
             (plan, fraction) = self.move_group.compute_cartesian_path(
                 waypoints,  # waypoints to follow
                 0.01,  # eef_step
-                0.0,  # jump_threshold
             )
         except Exception as e:
             print(e)

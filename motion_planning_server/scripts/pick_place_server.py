@@ -14,6 +14,7 @@ from motion_planning_server_msgs.msg import PickPlaceAction, PickPlaceActionGoal
 from motion_planning_server_msgs.msg import MovePreactionAction, MovePreactionActionGoal, MovePreactionActionResult
 import actionlib
 
+
 class Motion_planner:
 
     def __init__(self) -> None:
@@ -25,6 +26,7 @@ class Motion_planner:
 
         self.group_name = "manipulator"
         self.move_group = moveit_commander.MoveGroupCommander(self.group_name)
+
 
         self.display_trajectory_publisher = rospy.Publisher(
             "/move_group/display_planned_path",
@@ -91,7 +93,6 @@ class Motion_planner:
             (plan, fraction) = self.move_group.compute_cartesian_path(
                 waypoints,  # waypoints to follow
                 0.01,  # eef_step
-                0.0,  # jump_threshold
             )
         except Exception as e:
             print(e)
@@ -132,7 +133,6 @@ class Motion_planner:
             (plan, fraction) = self.move_group.compute_cartesian_path(
                 waypoints,  # waypoints to follow
                 0.01,  # eef_step
-                0.0,  # jump_threshold
             )
         except Exception as e:
             print(e)
